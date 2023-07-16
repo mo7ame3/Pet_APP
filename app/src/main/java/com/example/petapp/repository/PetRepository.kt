@@ -50,10 +50,10 @@ class PetRepository @Inject constructor(private val api: PetApi) {
                     "name" to name,
                     "phone" to phone,
                     "email" to email,
+                    "city" to city,
                     "country" to "egypt",
                     "password" to password,
-                    "city" to city,
-                    "passwordConfirm" to passwordConfirm
+                    "password_confirm" to passwordConfirm
                 )
             )
         } catch (e: HttpException) {
@@ -95,7 +95,7 @@ class PetRepository @Inject constructor(private val api: PetApi) {
                 resetPasswordBody = mapOf(
                     "code" to code,
                     "password" to password,
-                    "passwordConfirm" to passwordConfirm,
+                    "password_confirm" to passwordConfirm,
                 )
             )
         } catch (e: HttpException) {

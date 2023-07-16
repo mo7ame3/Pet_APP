@@ -18,6 +18,7 @@ import com.example.petapp.ui.theme.MainColor
 import com.example.petapp.ui.theme.PetAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+@Suppress("DEPRECATION")
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
