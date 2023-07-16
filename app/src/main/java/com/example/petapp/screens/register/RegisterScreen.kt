@@ -1,8 +1,6 @@
-package com.example.petapp.screens.login
+package com.example.petapp.screens.register
 
-import android.os.Build
 import android.widget.Toast
-import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,7 +8,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -42,10 +43,9 @@ import com.example.petapp.sharedpreference.SharedPreference
 import com.example.petapp.ui.theme.MainLight1
 import kotlinx.coroutines.launch
 
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
+fun RegisterScreen(navController: NavController, registerViewModel: RegisterViewModel) {
     var loading by remember {
         mutableStateOf(false)
     }
@@ -55,45 +55,97 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
     val emailError = remember {
         mutableStateOf(false)
     }
+    val name = remember {
+        mutableStateOf("")
+    }
+    val nameError = remember {
+        mutableStateOf(false)
+    }
+    val phone = remember {
+        mutableStateOf("")
+    }
+    val phoneError = remember {
+        mutableStateOf(false)
+    }
     val password = remember {
         mutableStateOf("")
     }
     val eye = remember {
         mutableStateOf(false)
     }
+    val passwordConfirm = remember {
+        mutableStateOf("")
+    }
+    val eyeConfirm = remember {
+        mutableStateOf(false)
+    }
+    val city = remember {
+        mutableStateOf("")
+    }
+    val cityError = remember {
+        mutableStateOf(false)
+    }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val sharedPreference = SharedPreference(context)
     val keyboardController = LocalSoftwareKeyboardController.current
+
     Surface(modifier = Modifier.fillMaxSize()) {
         if (!loading) {
             Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Login Screen", style = TextStyle(
+                    text = "Register Screen", style = TextStyle(
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                     )
                 )
                 Spacer(modifier = Modifier.height(25.dp))
+                TextInput(input = name, label = "Name", onAction = KeyboardActions {
+                    keyboardController?.hide()
+                }, error = nameError, keyboardType = KeyboardType.Text)
+                Spacer(modifier = Modifier.height(15.dp))
+                TextInput(input = phone, label = "Phone", onAction = KeyboardActions {
+                    keyboardController?.hide()
+                }, error = phoneError, keyboardType = KeyboardType.Number)
+                Spacer(modifier = Modifier.height(15.dp))
                 TextInput(input = email, label = "Email", onAction = KeyboardActions {
                     keyboardController?.hide()
                 }, error = emailError)
+                Spacer(modifier = Modifier.height(15.dp))
+                TextInput(input = city, label = "City", onAction = KeyboardActions {
+                    keyboardController?.hide()
+                }, error = cityError)
                 Spacer(modifier = Modifier.height(15.dp))
                 PasswordInput(
                     password = password,
                     eye = eye,
                     onButtonAction = { eye.value = !eye.value },
                     onAction = KeyboardActions {
-                        if (!emailError.value && password.value.isNotBlank()) {
+                        keyboardController?.hide()
+                    })
+                Spacer(modifier = Modifier.height(15.dp))
+                PasswordInput(
+                    password = passwordConfirm,
+                    eye = eyeConfirm,
+                    label = "Confirm Password",
+                    onButtonAction = { eyeConfirm.value = !eyeConfirm.value },
+                    onAction = KeyboardActions {
+                        if (!emailError.value && !nameError.value && !cityError.value && !phoneError.value && password.value == passwordConfirm.value) {
                             loading = true
                             scope.launch {
                                 val response: WrapperClass<Authentication, Boolean, Exception> =
-                                    loginViewModel.login(
+                                    registerViewModel.register(
                                         email = email.value,
-                                        password = password.value
+                                        password = password.value,
+                                        city = city.value,
+                                        name = name.value,
+                                        phone = phone.value,
+                                        passwordConfirm = passwordConfirm.value
                                     )
                                 if (response.data?.status == "success") {
                                     loading = false
@@ -125,14 +177,18 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                         }
                     })
                 Spacer(modifier = Modifier.height(15.dp))
-                LoginButton(label = "Login") {
-                    if (!emailError.value && password.value.isNotBlank()) {
+                LoginButton(label = "Register") {
+                    if (!emailError.value && !nameError.value && !cityError.value && !phoneError.value && password.value == passwordConfirm.value) {
                         loading = true
                         scope.launch {
                             val response: WrapperClass<Authentication, Boolean, Exception> =
-                                loginViewModel.login(
+                                registerViewModel.register(
                                     email = email.value,
-                                    password = password.value
+                                    password = password.value,
+                                    city = city.value,
+                                    name = name.value,
+                                    phone = phone.value,
+                                    passwordConfirm = passwordConfirm.value
                                 )
                             if (response.data?.status == "success") {
                                 loading = false
@@ -159,30 +215,25 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
-
                         }
                     }
                 }
                 Spacer(modifier = Modifier.height(15.dp))
-
-                TextButton(onClick = {
-                    navController.navigate(AllScreens.ForgetPasswordScreen.name)
-                }) {
-                    Text(text = "Forget Password ", color = MainLight1)
-                }
-
-                Spacer(modifier = Modifier.height(25.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "Don't have account yet ?")
+                    Text(text = "have account ?")
                     TextButton(onClick = {
-                        navController.navigate(AllScreens.RegisterScreen.name)
+                        navController.navigate(AllScreens.LoginScreen.name) {
+                            navController.popBackStack()
+                            navController.popBackStack()
+                            navController.popBackStack()
+                        }
                     }) {
-                        Text(text = "Register Now", color = MainLight1)
+                        Text(text = "Login", color = MainLight1)
                     }
                 }
 
@@ -191,4 +242,5 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
             CircleInductor()
         }
     }
+
 }

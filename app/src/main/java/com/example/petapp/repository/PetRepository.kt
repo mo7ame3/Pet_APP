@@ -27,7 +27,7 @@ class PetRepository @Inject constructor(private val api: PetApi) {
             )
         } catch (e: HttpException) {
             val error = e.response()?.errorBody()?.string()
-            authentication.data = Authentication(status = "success", message = error.toString())
+            authentication.data = Authentication(status = "fail", message = error.toString())
         } catch (e: Exception) {
             Log.d("TAG", "login: $e")
             authentication.e = e
@@ -40,6 +40,7 @@ class PetRepository @Inject constructor(private val api: PetApi) {
         name: String,
         phone: String,
         email: String,
+        city:String,
         password: String,
         passwordConfirm: String
     ): WrapperClass<Authentication, Boolean, Exception> {
@@ -49,13 +50,15 @@ class PetRepository @Inject constructor(private val api: PetApi) {
                     "name" to name,
                     "phone" to phone,
                     "email" to email,
+                    "country" to "egypt",
                     "password" to password,
+                    "city" to city,
                     "passwordConfirm" to passwordConfirm
                 )
             )
         } catch (e: HttpException) {
             val error = e.response()?.errorBody()?.string()
-            authentication.data = Authentication(status = "success", message = error.toString())
+            authentication.data = Authentication(status = "fail", message = error.toString())
         } catch (e: Exception) {
             Log.d("TAG", "register: $e")
             authentication.e = e
@@ -74,7 +77,7 @@ class PetRepository @Inject constructor(private val api: PetApi) {
             )
         } catch (e: HttpException) {
             val error = e.response()?.errorBody()?.string()
-            authentication.data = Authentication(status = "success", message = error.toString())
+            authentication.data = Authentication(status = "fail", message = error.toString())
         } catch (e: Exception) {
             Log.d("TAG", "forgetPassword: $e")
             authentication.e = e
@@ -97,7 +100,7 @@ class PetRepository @Inject constructor(private val api: PetApi) {
             )
         } catch (e: HttpException) {
             val error = e.response()?.errorBody()?.string()
-            authentication.data = Authentication(status = "success", message = error.toString())
+            authentication.data = Authentication(status = "fail", message = error.toString())
         } catch (e: Exception) {
             Log.d("TAG", "resetPassword: $e")
             authentication.e = e

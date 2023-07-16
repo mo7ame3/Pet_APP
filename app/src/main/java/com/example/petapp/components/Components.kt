@@ -71,9 +71,6 @@ fun TextInput(
     onAction: KeyboardActions = KeyboardActions.Default,
     isSingleLine: Boolean = true,
 ) {
-    val emailRegex = "^[A-Za-z](.*)(@)(.+)(\\.)(.+)"
-    val phoneRegex = "1[0-9](.+)"
-    val nameRegex = "^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$"
 
     OutlinedTextField(
         modifier = modifier
@@ -84,16 +81,23 @@ fun TextInput(
         value = input.value,
         onValueChange = {
             if (label == "Email") {
+                val emailRegex = "^[A-Za-z](.*)(@)(.+)(\\.)(.+)"
                 input.value = it
                 error.value = !emailRegex.toRegex().matches(it)
             } else if (label == "Phone") {
+                val phoneRegex = "1[0-9](.+)"
                 error.value = !phoneRegex.toRegex().matches(it)
                 if (it.length <= 10) {
                     input.value = it
                 }
             } else if (label == "Name") {
+                val nameRegex = "^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$"
                 input.value = it
                 error.value = !nameRegex.toRegex().matches(it)
+            }else if(label == "City"){
+                val cityRegex = "^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]*$"
+                input.value = it
+                error.value = !cityRegex.toRegex().matches(it)
             }
         },
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),

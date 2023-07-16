@@ -10,6 +10,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.petapp.screens.home.HomeScreen
 import com.example.petapp.screens.login.LoginScreen
 import com.example.petapp.screens.login.LoginViewModel
+import com.example.petapp.screens.register.RegisterScreen
+import com.example.petapp.screens.register.RegisterViewModel
 import com.example.petapp.screens.splash.SplashScreen
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
@@ -30,10 +32,10 @@ fun NavGraph() {
             LoginScreen(navController = navController, loginViewModel = loginViewModel)
         }
 
-//        composable(route = AllScreens.RegisterScreen.name) {
-//            val registerViewModel = hiltViewModel<RegisterViewModel>()
-//            RegisterScreen(navController = navController, registerViewModel = registerViewModel)
-//        }
+        composable(route = AllScreens.RegisterScreen.name) {
+            val registerViewModel = hiltViewModel<RegisterViewModel>()
+            RegisterScreen(navController = navController, registerViewModel = registerViewModel)
+        }
 //
 //        composable(route = AllScreens.ForgetPasswordScreen.name) {
 //            val forgetPasswordViewModel = hiltViewModel<ForgetPasswordViewModel>()
