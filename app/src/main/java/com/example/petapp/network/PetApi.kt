@@ -3,7 +3,9 @@ package com.example.petapp.network
 
 import com.example.petapp.constant.Constant
 import com.example.petapp.model.authentication.Authentication
+import com.example.petapp.model.home.Home
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface PetApi {
@@ -27,5 +29,8 @@ interface PetApi {
     suspend fun resetPassword(
         @Body resetPasswordBody: Map<String, String>
     ): Authentication
+
+    @GET(Constant.Home)
+    suspend fun home(): Home
 
 }

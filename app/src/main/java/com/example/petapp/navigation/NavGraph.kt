@@ -11,6 +11,7 @@ import com.example.citymall.screens.forgetPassword.ForgetPasswordViewModel
 import com.example.petapp.screens.forgetPassword.ForgetPasswordScreen
 import com.example.petapp.screens.forgetPassword.ResetPasswordScreen
 import com.example.petapp.screens.home.HomeScreen
+import com.example.petapp.screens.home.HomeViewModel
 import com.example.petapp.screens.login.LoginScreen
 import com.example.petapp.screens.login.LoginViewModel
 import com.example.petapp.screens.register.RegisterScreen
@@ -56,7 +57,8 @@ fun NavGraph() {
         }
 
         composable(route = AllScreens.HomeScreen.name) {
-            HomeScreen(navController = navController)
+            val homeViewModel = hiltViewModel<HomeViewModel>()
+            HomeScreen(navController = navController, homeViewModel = homeViewModel)
         }
 
 

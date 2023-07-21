@@ -6,12 +6,14 @@ import android.util.Log
 import androidx.annotation.RequiresExtension
 import com.example.petapp.data.WrapperClass
 import com.example.petapp.model.authentication.Authentication
+import com.example.petapp.model.home.Home
 import com.example.petapp.network.PetApi
 import javax.inject.Inject
 
 class PetRepository @Inject constructor(private val api: PetApi) {
 
     private val authentication: WrapperClass<Authentication, Boolean, Exception> = WrapperClass()
+    private val home: WrapperClass<Home, Boolean, Exception> = WrapperClass()
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     suspend fun login(
@@ -106,6 +108,19 @@ class PetRepository @Inject constructor(private val api: PetApi) {
             authentication.e = e
         }
         return authentication
+    }
+
+    suspend fun home(): WrapperClass<Home, Boolean, Exception> {
+        try {
+            home.data = api.home()
+        } catch (e: HttpException) {
+            val error = e.response()?.errorBody()?.string()
+            home.data = Home(status = "fail", message = error.toString())
+        } catch (e: Exception) {
+            Log.d("TAG", "home: $e")
+            home.e = e
+        }
+        return home
     }
 
 }

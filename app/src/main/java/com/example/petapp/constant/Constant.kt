@@ -11,5 +11,6 @@ object Constant {
     const val REGISTER = "user/signup"
     const val FORGET_PASSWORD = "user/forgetPassword"
     const val RESET_PASSWORD = "user/resetPassword"
+    const val Home = "home"
 
 }
