@@ -38,7 +38,7 @@ import androidx.navigation.NavController
 import com.example.petapp.components.BottomBar
 import com.example.petapp.components.CircleInductor
 import com.example.petapp.components.Home
-import com.example.petapp.components.Profile
+import com.example.petapp.components.Setting
 import com.example.petapp.components.TextInput
 import com.example.petapp.data.WrapperClass
 import com.example.petapp.model.home.Data
@@ -59,6 +59,7 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
     val sharedPreference = SharedPreference(context)
     val getImage = sharedPreference.getImage.collectAsState(initial = "")
     val getName = sharedPreference.getName.collectAsState(initial = "")
+    val getUserId = sharedPreference.getUserId.collectAsState(initial = "")
     val keyboardController = LocalSoftwareKeyboardController.current
     val selectBottomBar = remember {
         mutableStateOf("home")
@@ -90,11 +91,9 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
                 Toast.LENGTH_SHORT
             ).show()
         }
-    }
-    else if (selectBottomBar.value == "chat") {
+    } else if (selectBottomBar.value == "chat") {
         loading = false
-    }
-    else if (selectBottomBar.value == "favorite") {
+    } else if (selectBottomBar.value == "favorite") {
         loading = false
     }
 
@@ -198,19 +197,18 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
                             }
 
                             "profile" -> {
-                                Profile(
+                                Setting(
                                     sharedPreference = sharedPreference,
                                     navController = navController,
                                     profileName = getName.value.toString(),
-                                    profilePhoto = if (getImage.value == "null" || getImage.value == "https") null else getImage.value.toString()
+                                    profilePhoto = if (getImage.value == "null" || getImage.value == "https") null else getImage.value.toString(),
+                                    userId = getUserId.value.toString()
                                 )
                             }
                         }
-                    }
-                    else if (loading && !exception) {
+                    } else if (loading && !exception) {
                         CircleInductor()
-                    }
-                    else if (exception) {
+                    } else if (exception) {
                         Column(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.Center,

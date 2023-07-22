@@ -4,9 +4,13 @@ package com.example.petapp.network
 import com.example.petapp.constant.Constant
 import com.example.petapp.model.authentication.Authentication
 import com.example.petapp.model.home.Home
+import com.example.petapp.model.profile.Profile
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface PetApi {
 
@@ -32,5 +36,18 @@ interface PetApi {
 
     @GET(Constant.Home)
     suspend fun home(): Home
+
+    @GET(Constant.GETUSER + "/{userId}")
+    suspend fun getProfile(
+        @Path("userId") userId: String,
+        @Header("Authorization") authorization: String
+    ): Profile
+
+    @PATCH(Constant.GETUSER + "/{userId}")
+    suspend fun updateProfile(
+        @Path("userId") userId: String,
+        @Header("Authorization") authorization: String,
+        @Body updateProfile: Map<String, String>
+    ): Profile
 
 }

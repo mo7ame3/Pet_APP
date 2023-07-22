@@ -1,6 +1,7 @@
 package com.example.petapp.components
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,14 +27,17 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -61,6 +65,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
@@ -73,14 +78,19 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.petapp.R
+import com.example.petapp.constant.Constant
+import com.example.petapp.data.WrapperClass
 import com.example.petapp.model.home.Data
+import com.example.petapp.model.profile.Profile
 import com.example.petapp.navigation.AllScreens
+import com.example.petapp.screens.profile.ProfileViewModel
 import com.example.petapp.sharedpreference.SharedPreference
 import com.example.petapp.ui.theme.Gold
 import com.example.petapp.ui.theme.GreyDark
 import com.example.petapp.ui.theme.GreyLight
 import com.example.petapp.ui.theme.MainColor
 import com.example.petapp.ui.theme.MainLight1
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -98,7 +108,9 @@ fun CircleInductor() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextInput(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .padding(start = 25.dp, end = 25.dp),
     input: MutableState<String>,
     keyboardType: KeyboardType = KeyboardType.Email,
     error: MutableState<Boolean>,
@@ -108,9 +120,7 @@ fun TextInput(
 ) {
 
     OutlinedTextField(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(start = 25.dp, end = 25.dp),
+        modifier = modifier,
         shape = RoundedCornerShape(25.dp),
         label = { Text(text = label) },
         value = input.value,
@@ -120,9 +130,9 @@ fun TextInput(
                 input.value = it
                 error.value = !emailRegex.toRegex().matches(it)
             } else if (label == "Phone") {
-                val phoneRegex = "1[0-9](.+)"
+                val phoneRegex = "01[0-9](.+)"
                 error.value = !phoneRegex.toRegex().matches(it)
-                if (it.length <= 10) {
+                if (it.length <= 11) {
                     input.value = it
                 }
             } else if (label == "Name") {
@@ -154,7 +164,7 @@ fun TextInput(
                 }
 
                 "Phone" -> {
-                    Text(text = "+20")
+                    Text(text = "+2")
                 }
 
                 "Name" -> {
@@ -223,18 +233,28 @@ fun PasswordInput(
 }
 
 @Composable
-fun LoginButton(label: String, color: Color = MainLight1, onClick: () -> Unit) {
+fun LoginButton(
+    label: String,
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .padding(start = 25.dp, end = 25.dp),
+    color: Color = MainLight1,
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) {
     Button(
         onClick = {
-            onClick.invoke()
+            if (enabled) {
+                onClick.invoke()
+            }
         },
         shape = CircleShape,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 25.dp, end = 25.dp),
+        modifier = modifier,
         colors = ButtonDefaults.buttonColors(
-            containerColor = color
-        )
+            containerColor = color,
+            disabledContainerColor = GreyDark
+        ),
+        enabled = enabled
     ) {
         Text(
             text = label, color = Color.White
@@ -406,14 +426,13 @@ fun BottomBar(
 
             }, icon = {
                 if (profile != null) {
-                    if ( profile != "https") {
+                    if (profile != "https") {
                         Image(
                             painter = rememberAsyncImagePainter(model = profile),
                             contentDescription = null,
                             modifier = Modifier.size(30.dp)
                         )
-                    }
-                    else {
+                    } else {
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = null,
@@ -421,8 +440,7 @@ fun BottomBar(
                             modifier = Modifier.size(30.dp)
                         )
                     }
-                }
-                else {
+                } else {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = null,
@@ -633,7 +651,13 @@ fun SwitchExample() {
 
 
 @Composable
-fun Profile(sharedPreference: SharedPreference, navController: NavController, profileName: String, profilePhoto: String?) {
+fun Setting(
+    sharedPreference: SharedPreference,
+    navController: NavController,
+    profileName: String,
+    profilePhoto: String?,
+    userId: String
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -652,7 +676,7 @@ fun Profile(sharedPreference: SharedPreference, navController: NavController, pr
                     style = MaterialTheme.typography.bodyLarge,
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable {
-                        navController.navigate(route = AllScreens.ProfileScreen.name)
+                        navController.navigate(route = AllScreens.ProfileScreen.name + "/$userId")
                     }
                 )
             }
@@ -763,7 +787,7 @@ fun Profile(sharedPreference: SharedPreference, navController: NavController, pr
             Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = null)
         }
         Spacer(modifier = Modifier.height(50.dp))
-        LoginButton(label = "Log Out", color = Color.Red) {
+        LoginButton(label = "Log Out", color = Color.Red, modifier = Modifier.fillMaxWidth()) {
             scope.launch {
                 sharedPreference.removeUser()
                 navController.navigate(route = AllScreens.LoginScreen.name) {
@@ -796,4 +820,158 @@ fun GetSmallPhoto(uri: String? = null) {
         }
     }
 
+}
+
+
+
+@Composable
+fun ProfileForm(
+    navController: NavController,
+    item: com.example.petapp.model.profile.Data,
+    loading: MutableState<Boolean>,
+    profileViewModel: ProfileViewModel,
+    scope: CoroutineScope
+) {
+    val name = remember {
+        mutableStateOf(item.name)
+    }
+    val nameError = remember {
+        mutableStateOf(false)
+    }
+    val phone = remember {
+        mutableStateOf(item.phone)
+    }
+    val phoneError = remember {
+        mutableStateOf(false)
+    }
+    val email = remember {
+        mutableStateOf(item.email)
+    }
+    val emailError = remember {
+        mutableStateOf(false)
+    }
+    val city = remember {
+        mutableStateOf(item.city)
+    }
+    val cityError = remember {
+        mutableStateOf(false)
+    }
+    val context = LocalContext.current
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp)
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+
+            }
+            Text(text = "Profile", style = MaterialTheme.typography.bodyLarge)
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = null,
+                    tint = MainColor
+                )
+
+            }
+
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            GetSmallPhoto(uri = if (item.image_url != "https") item.image_url else null)
+            Spacer(modifier = Modifier.width(10.dp))
+            Row {
+                Text(text = "Edit Photo", style = MaterialTheme.typography.bodyLarge)
+                Spacer(modifier = Modifier.width(5.dp))
+                Icon(
+                    imageVector = Icons.Rounded.Edit,
+                    contentDescription = null,
+                    tint = MainColor
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        TextInput(
+            input = name,
+            error = nameError,
+            label = "Name",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        TextInput(
+            input = phone,
+            error = phoneError,
+            label = "Phone",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        TextInput(
+            input = email,
+            error = emailError,
+            label = "Email",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        TextInput(
+            input = city,
+            error = cityError,
+            label = "City",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Delete my account",
+                style = MaterialTheme.typography.bodyLarge,
+                textDecoration = TextDecoration.Underline
+            )
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        val valid =
+            (email.value != item.email || name.value != item.name || city.value != item.city || phone.value != item.phone)
+
+        LoginButton(label = "Save", enabled = valid, modifier = Modifier.fillMaxWidth()) {
+            scope.launch {
+                loading.value = true
+                val response: WrapperClass<Profile, Boolean, Exception> =
+                    profileViewModel.updateProfile(
+                        authorization = Constant.token,
+                        userId = item.id.toString(),
+                        name = name.value,
+                        city = city.value,
+                        phone = phone.value,
+                        email = email.value
+                    )
+
+                if (response.data?.status == "successful") {
+                    navController.navigate(route = AllScreens.HomeScreen.name) {
+                        navController.popBackStack()
+                        navController.popBackStack()
+                        navController.popBackStack()
+                    }
+                } else if (response.data?.status == "fail" || response.data?.status == "error" || response.e != null) {
+                    loading.value = false
+                    Toast.makeText(
+                        context,
+                        "خطأ في الانترنت",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+    }
 }

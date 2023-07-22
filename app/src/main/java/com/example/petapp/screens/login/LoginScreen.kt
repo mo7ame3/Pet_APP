@@ -144,6 +144,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                                 sharedPreference.saveToken(token = response.data!!.token.toString())
                                 sharedPreference.saveImage(image = response.data!!.data?.model?.image_url.toString())
                                 sharedPreference.saveName(name = response.data!!.data?.model?.name.toString())
+                                sharedPreference.saveId(id = response.data!!.data?.model?.id.toString())
                                 sharedPreference.saveRole(role = response.data!!.data?.model?.role.toString())
                                 Constant.token = response.data!!.token.toString()
                                 navController.navigate(route = AllScreens.HomeScreen.name) {

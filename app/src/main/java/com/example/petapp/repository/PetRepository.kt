@@ -7,6 +7,7 @@ import androidx.annotation.RequiresExtension
 import com.example.petapp.data.WrapperClass
 import com.example.petapp.model.authentication.Authentication
 import com.example.petapp.model.home.Home
+import com.example.petapp.model.profile.Profile
 import com.example.petapp.network.PetApi
 import javax.inject.Inject
 
@@ -14,6 +15,7 @@ class PetRepository @Inject constructor(private val api: PetApi) {
 
     private val authentication: WrapperClass<Authentication, Boolean, Exception> = WrapperClass()
     private val home: WrapperClass<Home, Boolean, Exception> = WrapperClass()
+    private val profile: WrapperClass<Profile, Boolean, Exception> = WrapperClass()
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     suspend fun login(
@@ -42,7 +44,7 @@ class PetRepository @Inject constructor(private val api: PetApi) {
         name: String,
         phone: String,
         email: String,
-        city:String,
+        city: String,
         password: String,
         passwordConfirm: String
     ): WrapperClass<Authentication, Boolean, Exception> {
@@ -121,6 +123,51 @@ class PetRepository @Inject constructor(private val api: PetApi) {
             home.e = e
         }
         return home
+    }
+
+    suspend fun getProfile(
+        userId: String,
+        authorization: String
+    ): WrapperClass<Profile, Boolean, Exception> {
+        try {
+            profile.data = api.getProfile(userId = userId, authorization = authorization)
+        } catch (e: HttpException) {
+            val error = e.response()?.errorBody()?.string()
+            profile.data = Profile(status = "fail", message = error.toString())
+        } catch (e: Exception) {
+            Log.d("TAG", "getProfile: $e")
+            profile.e = e
+        }
+        return profile
+    }
+
+    suspend fun updateProfile(
+        userId: String,
+        authorization: String,
+        name: String,
+        email: String,
+        city: String,
+        phone: String
+    ): WrapperClass<Profile, Boolean, Exception> {
+        try {
+            profile.data = api.updateProfile(
+                userId = userId, authorization = authorization,
+                updateProfile = mapOf(
+                    "name" to name,
+                    "email" to email,
+                    "country" to "egypt",
+                    "city" to city,
+                    "phone" to phone
+                )
+            )
+        } catch (e: HttpException) {
+            val error = e.response()?.errorBody()?.string()
+            profile.data = Profile(status = "fail", message = error.toString())
+        } catch (e: Exception) {
+            Log.d("TAG", "updateProfile: $e")
+            profile.e = e
+        }
+        return profile
     }
 
 }
