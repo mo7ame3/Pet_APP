@@ -7,4 +7,5 @@ enum class AllScreens {
     HomeScreen,
     ForgetPasswordScreen,
     ResetPasswordScreen,
+    ProfileScreen,
 }

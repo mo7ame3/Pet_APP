@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,8 +26,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -45,11 +48,16 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -62,15 +70,19 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.petapp.R
 import com.example.petapp.model.home.Data
+import com.example.petapp.navigation.AllScreens
+import com.example.petapp.sharedpreference.SharedPreference
 import com.example.petapp.ui.theme.Gold
 import com.example.petapp.ui.theme.GreyDark
 import com.example.petapp.ui.theme.GreyLight
 import com.example.petapp.ui.theme.MainColor
 import com.example.petapp.ui.theme.MainLight1
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 @Composable
 fun CircleInductor() {
@@ -211,7 +223,7 @@ fun PasswordInput(
 }
 
 @Composable
-fun LoginButton(label: String, onClick: () -> Unit) {
+fun LoginButton(label: String, color: Color = MainLight1, onClick: () -> Unit) {
     Button(
         onClick = {
             onClick.invoke()
@@ -221,7 +233,7 @@ fun LoginButton(label: String, onClick: () -> Unit) {
             .fillMaxWidth()
             .padding(start = 25.dp, end = 25.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MainLight1
+            containerColor = color
         )
     ) {
         Text(
@@ -299,7 +311,9 @@ private fun CharView(
 @Composable
 fun BottomBar(
     selected: MutableState<String>,
+    profile: String? = null
 ) {
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -371,30 +385,51 @@ fun BottomBar(
                 indicatorColor = GreyDark
             )
             )
-            NavigationBarItem(selected = selected.value == "favorite", onClick = {
-                selected.value = "favorite"
+            NavigationBarItem(
+                selected = selected.value == "favorite", onClick = {
+                    selected.value = "favorite"
 
-            }, icon = {
-                Icon(
-                    imageVector = Icons.Default.Favorite,
-                    contentDescription = null,
-                    tint = GreyLight,
-                    modifier = Modifier.size(30.dp)
+                },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = null,
+                        tint = GreyLight,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }, colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = GreyDark
                 )
-            }, colors = NavigationBarItemDefaults.colors(
-                indicatorColor = GreyDark
-            )
             )
             NavigationBarItem(selected = selected.value == "profile", onClick = {
                 selected.value = "profile"
 
             }, icon = {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    tint = GreyLight,
-                    modifier = Modifier.size(30.dp)
-                )
+                if (profile != null) {
+                    if ( profile != "https") {
+                        Image(
+                            painter = rememberAsyncImagePainter(model = profile),
+                            contentDescription = null,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+                    else {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null,
+                            tint = GreyLight,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+                }
+                else {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = null,
+                        tint = GreyLight,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
             }, colors = NavigationBarItemDefaults.colors(
                 indicatorColor = GreyDark
             )
@@ -485,7 +520,9 @@ fun HomeCardOnline(item: Data) {
             Image(
                 painter = rememberAsyncImagePainter(model = item.image_url),
                 contentDescription = null,
-                modifier = Modifier.fillMaxHeight().fillMaxSize(.5f)
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxSize(.5f)
             )
         }
         Spacer(modifier = Modifier.height(5.dp))
@@ -576,5 +613,187 @@ fun Home(item: MutableStateFlow<List<Data>>) {
             }
             Spacer(modifier = Modifier.height(5.dp))
         }
+        Spacer(modifier = Modifier.height(50.dp))
+
     }
+}
+
+@Composable
+fun SwitchExample() {
+    val checked = remember { mutableStateOf(true) }
+    Switch(
+        checked = checked.value,
+        colors = SwitchDefaults.colors(
+            checkedTrackColor = MainColor,
+            uncheckedTrackColor = MainLight1.copy(alpha = 0.4f)
+        ),
+        onCheckedChange = { checked.value = it },
+    )
+}
+
+
+@Composable
+fun Profile(sharedPreference: SharedPreference, navController: NavController, profileName: String, profilePhoto: String?) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp)
+    )
+    {
+        val scope = rememberCoroutineScope()
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            GetSmallPhoto(uri = profilePhoto)
+            Spacer(modifier = Modifier.width(10.dp))
+            Column {
+                Text(text = "Hi , $profileName !", style = MaterialTheme.typography.bodyLarge)
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "View and edit profile",
+                    style = MaterialTheme.typography.bodyLarge,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable {
+                        navController.navigate(route = AllScreens.ProfileScreen.name)
+                    }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(text = "Account", style = MaterialTheme.typography.bodyLarge)
+        Spacer(modifier = Modifier.height(20.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(id = R.drawable.petsicon),
+                    contentDescription = null,
+                    tint = MainColor,
+                    modifier = Modifier.size(25.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = "My Pets", style = MaterialTheme.typography.bodyLarge)
+            }
+            Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = null)
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(id = R.drawable.my_orders),
+                    contentDescription = null,
+                    tint = MainColor,
+                    modifier = Modifier.size(25.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = "Orders", style = MaterialTheme.typography.bodyLarge)
+            }
+            Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = null)
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = MainColor,
+                    modifier = Modifier.size(25.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = "Address Information", style = MaterialTheme.typography.bodyLarge)
+            }
+            Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = null)
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(text = "Settings")
+        Spacer(modifier = Modifier.height(20.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(id = R.drawable.language),
+                    contentDescription = null,
+                    tint = MainColor,
+                    modifier = Modifier.size(25.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = "Language", style = MaterialTheme.typography.bodyLarge)
+            }
+            Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = null)
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SwitchExample()
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(text = "Allow Notification", style = MaterialTheme.typography.bodyLarge)
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(text = "Reach out", style = MaterialTheme.typography.bodyLarge)
+        Spacer(modifier = Modifier.height(20.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Call,
+                    contentDescription = null,
+                    tint = MainColor,
+                    modifier = Modifier.size(25.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = "Call Us", style = MaterialTheme.typography.bodyLarge)
+            }
+            Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = null)
+        }
+        Spacer(modifier = Modifier.height(50.dp))
+        LoginButton(label = "Log Out", color = Color.Red) {
+            scope.launch {
+                sharedPreference.removeUser()
+                navController.navigate(route = AllScreens.LoginScreen.name) {
+                    navController.popBackStack()
+                    navController.popBackStack()
+                    navController.popBackStack()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun GetSmallPhoto(uri: String? = null) {
+    Surface(
+        shape = CircleShape,
+        color = MainColor,
+        modifier = Modifier.size(100.dp)
+    ) {
+        if (uri != null) {
+            Image(
+                painter = rememberAsyncImagePainter(model = uri),
+                contentDescription = null,
+                modifier = Modifier.size(300.dp, 200.dp),
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Person, contentDescription = null, tint = Color.White
+            )
+        }
+    }
+
 }

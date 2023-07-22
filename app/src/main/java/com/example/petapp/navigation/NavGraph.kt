@@ -14,6 +14,7 @@ import com.example.petapp.screens.home.HomeScreen
 import com.example.petapp.screens.home.HomeViewModel
 import com.example.petapp.screens.login.LoginScreen
 import com.example.petapp.screens.login.LoginViewModel
+import com.example.petapp.screens.profile.ProfileScreen
 import com.example.petapp.screens.register.RegisterScreen
 import com.example.petapp.screens.register.RegisterViewModel
 import com.example.petapp.screens.splash.SplashScreen
@@ -60,7 +61,8 @@ fun NavGraph() {
             val homeViewModel = hiltViewModel<HomeViewModel>()
             HomeScreen(navController = navController, homeViewModel = homeViewModel)
         }
-
-
+        composable(route = AllScreens.ProfileScreen.name) {
+            ProfileScreen()
+        }
     }
 }

@@ -150,6 +150,8 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
                                 if (response.data?.status == "success") {
                                     loading = false
                                     sharedPreference.saveToken(token = response.data!!.token.toString())
+                                    sharedPreference.saveImage(image = response.data!!.data?.model?.image_url.toString())
+                                    sharedPreference.saveName(name = response.data!!.data?.model?.name.toString())
                                     sharedPreference.saveRole(role = response.data!!.data?.model?.role.toString())
                                     Constant.token = response.data!!.token.toString()
                                     navController.navigate(route = AllScreens.HomeScreen.name) {
@@ -193,6 +195,8 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
                             if (response.data?.status == "success") {
                                 loading = false
                                 sharedPreference.saveToken(token = response.data!!.token.toString())
+                                sharedPreference.saveImage(image = response.data!!.data?.model?.image_url.toString())
+                                sharedPreference.saveName(name = response.data!!.data?.model?.name.toString())
                                 sharedPreference.saveRole(role = response.data!!.data?.model?.role.toString())
                                 Constant.token = response.data!!.token.toString()
                                 navController.navigate(route = AllScreens.HomeScreen.name) {

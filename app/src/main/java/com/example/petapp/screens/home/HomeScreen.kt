@@ -15,9 +15,12 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -35,10 +38,13 @@ import androidx.navigation.NavController
 import com.example.petapp.components.BottomBar
 import com.example.petapp.components.CircleInductor
 import com.example.petapp.components.Home
+import com.example.petapp.components.Profile
 import com.example.petapp.components.TextInput
 import com.example.petapp.data.WrapperClass
 import com.example.petapp.model.home.Data
 import com.example.petapp.model.home.Home
+import com.example.petapp.sharedpreference.SharedPreference
+import com.example.petapp.ui.theme.MainColor
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,7 +56,9 @@ import kotlinx.coroutines.launch
 fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-
+    val sharedPreference = SharedPreference(context)
+    val getImage = sharedPreference.getImage.collectAsState(initial = "")
+    val getName = sharedPreference.getName.collectAsState(initial = "")
     val keyboardController = LocalSoftwareKeyboardController.current
     val selectBottomBar = remember {
         mutableStateOf("home")
@@ -83,6 +91,12 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
             ).show()
         }
     }
+    else if (selectBottomBar.value == "chat") {
+        loading = false
+    }
+    else if (selectBottomBar.value == "favorite") {
+        loading = false
+    }
 
     // Swipe Refresh
     var swipeLoading by remember {
@@ -90,9 +104,9 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
     }
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = swipeLoading)
     SwipeRefresh(state = swipeRefreshState, onRefresh = {
+        loading = false
         if (selectBottomBar.value == "home") {
             swipeLoading = true
-            loading = false
             scope.launch {
                 val homeRefresh: WrapperClass<Home, Boolean, Exception> =
                     homeViewModel.home()
@@ -108,26 +122,36 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
     {
         Scaffold(
             topBar = {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    val search = remember {
-                        mutableStateOf("")
+                if (selectBottomBar.value != "profile" && selectBottomBar.value != "add")
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        val search = remember {
+                            mutableStateOf("")
+                        }
+                        val searchError = remember {
+                            mutableStateOf(false)
+                        }
+                        TextInput(
+                            input = search,
+                            error = searchError,
+                            label = "Search",
+                            onAction = KeyboardActions {
+                                keyboardController?.hide()
+                            },
+                            keyboardType = KeyboardType.Text
+                        )
                     }
-                    val searchError = remember {
-                        mutableStateOf(false)
-                    }
-                    TextInput(
-                        input = search,
-                        error = searchError,
-                        label = "Search",
-                        onAction = KeyboardActions {
-                            keyboardController?.hide()
-                        },
-                        keyboardType = KeyboardType.Text
-                    )
-                }
             },
             bottomBar = {
-                BottomBar(selected = selectBottomBar)
+                if (!loading) {
+                    if (getImage.value == "null") {
+                        BottomBar(selected = selectBottomBar)
+                    } else {
+                        BottomBar(selected = selectBottomBar, profile = getImage.value.toString())
+                    }
+                } else {
+                    BottomBar(selected = selectBottomBar)
+                }
+
             })
         {
             Surface(
@@ -141,12 +165,52 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
                         .padding(top = 45.dp)
                 ) {
                     if (!loading && !exception) {
-                        if (selectBottomBar.value == "home") {
-                            Home(item = homeList)
+                        when (selectBottomBar.value) {
+                            "home" -> {
+                                Home(item = homeList)
+                            }
+
+                            "chat" -> {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = "Not Completed Yet",
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            }
+
+                            "favorite" -> {
+                                Column(
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = "Not Completed Yet",
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            }
+
+                            "profile" -> {
+                                Profile(
+                                    sharedPreference = sharedPreference,
+                                    navController = navController,
+                                    profileName = getName.value.toString(),
+                                    profilePhoto = if (getImage.value == "null" || getImage.value == "https") null else getImage.value.toString()
+                                )
+                            }
                         }
-                    } else if (loading && !exception) {
+                    }
+                    else if (loading && !exception) {
                         CircleInductor()
-                    } else if (exception) {
+                    }
+                    else if (exception) {
                         Column(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.Center,
@@ -179,7 +243,9 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
                                 }
                             }) {
                                 Icon(
-                                    imageVector = Icons.Default.Refresh, contentDescription = null,
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = null,
+                                    tint = MainColor,
                                     modifier = Modifier.size(60.dp)
                                 )
                             }
@@ -188,7 +254,6 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
                 }
             }
         }
-
     }
 }
 

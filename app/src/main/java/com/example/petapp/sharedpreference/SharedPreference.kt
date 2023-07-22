@@ -14,6 +14,8 @@ class SharedPreference(private val context: Context) {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "token")
         val TOKEN = stringPreferencesKey("token")
         val ROLE = stringPreferencesKey("role")
+        val IMAGE = stringPreferencesKey("image")
+        val NAME = stringPreferencesKey("name")
     }
 
     val getToken: Flow<String?> = context.dataStore.data
@@ -23,6 +25,14 @@ class SharedPreference(private val context: Context) {
     val getRole: Flow<String?> = context.dataStore.data
         .map { Preferences ->
             Preferences[ROLE] ?: ""
+        }
+    val getImage: Flow<String?> = context.dataStore.data
+        .map { Preferences ->
+            Preferences[IMAGE] ?: ""
+        }
+    val getName: Flow<String?> = context.dataStore.data
+        .map { Preferences ->
+            Preferences[NAME] ?: ""
         }
 
     suspend fun saveToken(token: String) {
@@ -34,6 +44,17 @@ class SharedPreference(private val context: Context) {
     suspend fun saveRole(role: String) {
         context.dataStore.edit { Preferences ->
             Preferences[ROLE] = role
+        }
+    }
+
+    suspend fun saveImage(image: String) {
+        context.dataStore.edit { Preferences ->
+            Preferences[IMAGE] = image
+        }
+    }
+    suspend fun saveName(name: String) {
+        context.dataStore.edit { Preferences ->
+            Preferences[NAME] = name
         }
     }
 

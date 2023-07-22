@@ -1,6 +1,7 @@
 package com.example.petapp.screens.login
 
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.layout.Arrangement
@@ -98,6 +99,8 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                                 if (response.data?.status == "success") {
                                     loading = false
                                     sharedPreference.saveToken(token = response.data!!.token.toString())
+                                    sharedPreference.saveImage(image = response.data!!.data?.model?.image_url.toString())
+                                    sharedPreference.saveName(name = response.data!!.data?.model?.name.toString())
                                     sharedPreference.saveRole(role = response.data!!.data?.model?.role.toString())
                                     Constant.token = response.data!!.token.toString()
                                     navController.navigate(route = AllScreens.HomeScreen.name) {
@@ -105,14 +108,16 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                                         navController.popBackStack()
                                         navController.popBackStack()
                                     }
-                                } else if (response.e != null) {
+                                }
+                                else if (response.e != null) {
                                     loading = false
                                     Toast.makeText(
                                         context,
                                         "خطأ في الانترنت",
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                } else if (response.data?.status == "fail" || response.data?.status == "error") {
+                                }
+                                else if (response.data?.status == "fail" || response.data?.status == "error") {
                                     loading = false
                                     Toast.makeText(
                                         context,
@@ -137,6 +142,8 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
                             if (response.data?.status == "success") {
                                 loading = false
                                 sharedPreference.saveToken(token = response.data!!.token.toString())
+                                sharedPreference.saveImage(image = response.data!!.data?.model?.image_url.toString())
+                                sharedPreference.saveName(name = response.data!!.data?.model?.name.toString())
                                 sharedPreference.saveRole(role = response.data!!.data?.model?.role.toString())
                                 Constant.token = response.data!!.token.toString()
                                 navController.navigate(route = AllScreens.HomeScreen.name) {
