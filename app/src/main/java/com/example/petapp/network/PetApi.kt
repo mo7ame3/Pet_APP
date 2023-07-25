@@ -3,9 +3,11 @@ package com.example.petapp.network
 
 import com.example.petapp.constant.Constant
 import com.example.petapp.model.authentication.Authentication
+import com.example.petapp.model.delete.Delete
 import com.example.petapp.model.home.Home
 import com.example.petapp.model.profile.Profile
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PATCH
@@ -50,4 +52,10 @@ interface PetApi {
         @Body updateProfile: Map<String, String>
     ): Profile
 
+
+    @DELETE(Constant.GETUSER + "/{userId}")
+    suspend fun deleteUser(
+        @Path("userId") userId: String,
+        @Header("Authorization") authorization: String,
+    ): Delete
 }

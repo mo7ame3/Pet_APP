@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -65,6 +66,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
@@ -80,6 +82,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.petapp.R
 import com.example.petapp.constant.Constant
 import com.example.petapp.data.WrapperClass
+import com.example.petapp.model.delete.Delete
 import com.example.petapp.model.home.Data
 import com.example.petapp.model.profile.Profile
 import com.example.petapp.navigation.AllScreens
@@ -247,14 +250,9 @@ fun LoginButton(
             if (enabled) {
                 onClick.invoke()
             }
-        },
-        shape = CircleShape,
-        modifier = modifier,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = color,
-            disabledContainerColor = GreyDark
-        ),
-        enabled = enabled
+        }, shape = CircleShape, modifier = modifier, colors = ButtonDefaults.buttonColors(
+            containerColor = color, disabledContainerColor = GreyDark
+        ), enabled = enabled
     ) {
         Text(
             text = label, color = Color.White
@@ -330,8 +328,7 @@ private fun CharView(
 
 @Composable
 fun BottomBar(
-    selected: MutableState<String>,
-    profile: String? = null
+    selected: MutableState<String>, profile: String? = null
 ) {
 
     Surface(
@@ -376,14 +373,9 @@ fun BottomBar(
 
             }, icon = {
                 Card(
-                    modifier = Modifier.size(50.dp),
-                    shape = RoundedCornerShape(
-                        topEnd = 15.dp,
-                        topStart = 15.dp,
-                        bottomEnd = 15.dp,
-                        bottomStart = 15.dp
-                    ),
-                    colors = CardDefaults.cardColors(
+                    modifier = Modifier.size(50.dp), shape = RoundedCornerShape(
+                        topEnd = 15.dp, topStart = 15.dp, bottomEnd = 15.dp, bottomStart = 15.dp
+                    ), colors = CardDefaults.cardColors(
                         containerColor = Gold
                     )
                 ) {
@@ -405,21 +397,19 @@ fun BottomBar(
                 indicatorColor = GreyDark
             )
             )
-            NavigationBarItem(
-                selected = selected.value == "favorite", onClick = {
-                    selected.value = "favorite"
+            NavigationBarItem(selected = selected.value == "favorite", onClick = {
+                selected.value = "favorite"
 
-                },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = null,
-                        tint = GreyLight,
-                        modifier = Modifier.size(30.dp)
-                    )
-                }, colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = GreyDark
+            }, icon = {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = null,
+                    tint = GreyLight,
+                    modifier = Modifier.size(30.dp)
                 )
+            }, colors = NavigationBarItemDefaults.colors(
+                indicatorColor = GreyDark
+            )
             )
             NavigationBarItem(selected = selected.value == "profile", onClick = {
                 selected.value = "profile"
@@ -459,12 +449,7 @@ fun BottomBar(
 
 @Composable
 fun HomeRowCard(
-    firTitle: String,
-    secTitle: String,
-    firIcon: Int,
-    secIcon: Int,
-    firPhoto: Int,
-    secPhoto: Int
+    firTitle: String, secTitle: String, firIcon: Int, secIcon: Int, firPhoto: Int, secPhoto: Int
 ) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Card(
@@ -493,8 +478,7 @@ fun HomeCardColumn(title: String, icon: Int, photo: Int) {
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.White)
-            .padding(start = 5.dp, end = 5.dp),
-        verticalArrangement = Arrangement.Center
+            .padding(start = 5.dp, end = 5.dp), verticalArrangement = Arrangement.Center
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
@@ -642,8 +626,7 @@ fun SwitchExample() {
     Switch(
         checked = checked.value,
         colors = SwitchDefaults.colors(
-            checkedTrackColor = MainColor,
-            uncheckedTrackColor = MainLight1.copy(alpha = 0.4f)
+            checkedTrackColor = MainColor, uncheckedTrackColor = MainLight1.copy(alpha = 0.4f)
         ),
         onCheckedChange = { checked.value = it },
     )
@@ -662,8 +645,7 @@ fun Setting(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp)
-    )
-    {
+    ) {
         val scope = rememberCoroutineScope()
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             GetSmallPhoto(uri = profilePhoto)
@@ -671,14 +653,12 @@ fun Setting(
             Column {
                 Text(text = "Hi , $profileName !", style = MaterialTheme.typography.bodyLarge)
                 Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = "View and edit profile",
+                Text(text = "View and edit profile",
                     style = MaterialTheme.typography.bodyLarge,
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable {
                         navController.navigate(route = AllScreens.ProfileScreen.name + "/$userId")
-                    }
-                )
+                    })
             }
         }
         Spacer(modifier = Modifier.height(20.dp))
@@ -803,9 +783,7 @@ fun Setting(
 @Composable
 fun GetSmallPhoto(uri: String? = null) {
     Surface(
-        shape = CircleShape,
-        color = MainColor,
-        modifier = Modifier.size(100.dp)
+        shape = CircleShape, color = MainColor, modifier = Modifier.size(100.dp)
     ) {
         if (uri != null) {
             Image(
@@ -823,13 +801,14 @@ fun GetSmallPhoto(uri: String? = null) {
 }
 
 
-
 @Composable
 fun ProfileForm(
     navController: NavController,
     item: com.example.petapp.model.profile.Data,
     loading: MutableState<Boolean>,
+    delete: MutableState<Boolean>,
     profileViewModel: ProfileViewModel,
+    sharedPreference: SharedPreference,
     scope: CoroutineScope
 ) {
     val name = remember {
@@ -857,121 +836,186 @@ fun ProfileForm(
         mutableStateOf(false)
     }
     val context = LocalContext.current
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp)
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-        Row(
-            Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp)
         ) {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
 
-            }
-            Text(text = "Profile", style = MaterialTheme.typography.bodyLarge)
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = null,
-                    tint = MainColor
-                )
-
-            }
-
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            GetSmallPhoto(uri = if (item.image_url != "https") item.image_url else null)
-            Spacer(modifier = Modifier.width(10.dp))
-            Row {
-                Text(text = "Edit Photo", style = MaterialTheme.typography.bodyLarge)
-                Spacer(modifier = Modifier.width(5.dp))
-                Icon(
-                    imageVector = Icons.Rounded.Edit,
-                    contentDescription = null,
-                    tint = MainColor
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-        TextInput(
-            input = name,
-            error = nameError,
-            label = "Name",
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        TextInput(
-            input = phone,
-            error = phoneError,
-            label = "Phone",
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        TextInput(
-            input = email,
-            error = emailError,
-            label = "Email",
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        TextInput(
-            input = city,
-            error = cityError,
-            label = "City",
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Delete my account",
-                style = MaterialTheme.typography.bodyLarge,
-                textDecoration = TextDecoration.Underline
-            )
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-        val valid =
-            (email.value != item.email || name.value != item.name || city.value != item.city || phone.value != item.phone)
-
-        LoginButton(label = "Save", enabled = valid, modifier = Modifier.fillMaxWidth()) {
-            scope.launch {
-                loading.value = true
-                val response: WrapperClass<Profile, Boolean, Exception> =
-                    profileViewModel.updateProfile(
-                        authorization = Constant.token,
-                        userId = item.id.toString(),
-                        name = name.value,
-                        city = city.value,
-                        phone = phone.value,
-                        email = email.value
+                }
+                Text(text = "Profile", style = MaterialTheme.typography.bodyLarge)
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = null,
+                        tint = MainColor
                     )
 
-                if (response.data?.status == "successful") {
-                    navController.navigate(route = AllScreens.HomeScreen.name) {
-                        navController.popBackStack()
-                        navController.popBackStack()
-                        navController.popBackStack()
+                }
+
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+            ) {
+                GetSmallPhoto(uri = if (item.image_url != "https") item.image_url else null)
+                Spacer(modifier = Modifier.width(10.dp))
+                Row {
+                    Text(text = "Edit Photo", style = MaterialTheme.typography.bodyLarge)
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Icon(
+                        imageVector = Icons.Rounded.Edit,
+                        contentDescription = null,
+                        tint = MainColor
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+            TextInput(
+                input = name, error = nameError, label = "Name", modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            TextInput(
+                input = phone,
+                error = phoneError,
+                label = "Phone",
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            TextInput(
+                input = email,
+                error = emailError,
+                label = "Email",
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            TextInput(
+                input = city, error = cityError, label = "City", modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(text = "Delete my account",
+                    style = MaterialTheme.typography.bodyLarge,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable {
+                        delete.value = true
+                    })
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+            val valid =
+                (email.value != item.email || name.value != item.name || city.value != item.city || phone.value != item.phone)
+
+            LoginButton(label = "Save", enabled = valid, modifier = Modifier.fillMaxWidth()) {
+                scope.launch {
+                    loading.value = true
+                    val response: WrapperClass<Profile, Boolean, Exception> =
+                        profileViewModel.updateProfile(
+                            authorization = Constant.token,
+                            userId = item.id.toString(),
+                            name = name.value,
+                            city = city.value,
+                            phone = phone.value,
+                            email = email.value
+                        )
+
+                    if (response.data?.status == "successful") {
+                        sharedPreference.saveName(name = name.value)
+                        navController.navigate(route = AllScreens.HomeScreen.name) {
+                            navController.popBackStack()
+                            navController.popBackStack()
+                            navController.popBackStack()
+                        }
+                    } else if (response.data?.status == "fail" || response.data?.status == "error" || response.e != null) {
+                        loading.value = false
+                        Toast.makeText(
+                            context, "خطأ في الانترنت", Toast.LENGTH_SHORT
+                        ).show()
                     }
-                } else if (response.data?.status == "fail" || response.data?.status == "error" || response.e != null) {
-                    loading.value = false
-                    Toast.makeText(
-                        context,
-                        "خطأ في الانترنت",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                }
+            }
+
+        }
+        if (delete.value) {
+            DeleteCard(cancel = {
+                delete.value = false
+            }) {
+                loading.value = true
+                scope.launch {
+                    val deleteResponse: WrapperClass<Delete, Boolean, Exception> =
+                        profileViewModel.deleteUser(
+                            authorization = Constant.token,
+                            userId = item.id.toString(),
+                        )
+
+                    if (deleteResponse.data?.status == "success") {
+                        navController.navigate(route = AllScreens.LoginScreen.name) {
+                            navController.popBackStack()
+                            navController.popBackStack()
+                            navController.popBackStack()
+                        }
+                    } else {
+                        loading.value = false
+                        Toast.makeText(
+                            context,
+                            "حدث خطأ ما",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
         }
+    }
+}
 
+
+@Composable
+fun DeleteCard(cancel: () -> Unit, delete: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Card(
+            modifier = Modifier
+                .height(250.dp)
+                .fillMaxWidth()
+                .padding(10.dp),
+            border = BorderStroke(width = 1.dp, color = MainColor),
+            shape = RectangleShape,
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White,
+
+                )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                LoginButton(label = "Cancel", modifier = Modifier.fillMaxWidth(.4f)) {
+                    cancel.invoke()
+                }
+                LoginButton(label = "Sure", modifier = Modifier.fillMaxWidth(.4f)) {
+                    delete.invoke()
+                }
+            }
+        }
     }
 }

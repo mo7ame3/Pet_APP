@@ -29,6 +29,7 @@ import com.example.petapp.constant.Constant
 import com.example.petapp.data.WrapperClass
 import com.example.petapp.model.profile.Data
 import com.example.petapp.model.profile.Profile
+import com.example.petapp.sharedpreference.SharedPreference
 import com.example.petapp.ui.theme.MainColor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -45,11 +46,14 @@ fun ProfileScreen(
     val loading = remember {
         mutableStateOf(true)
     }
+    val delete = remember {
+        mutableStateOf(false)
+    }
     var exception by remember {
         mutableStateOf(false)
     }
     val profileData = MutableStateFlow<List<Data>>(emptyList())
-
+    val sharedPreference = SharedPreference(context)
     val response = produceState<WrapperClass<Profile, Boolean, Exception>>(
         initialValue = WrapperClass(),
     ) {
@@ -80,7 +84,9 @@ fun ProfileScreen(
                 item = profileData.value[0],
                 profileViewModel = profileViewModel,
                 scope = scope,
-                loading = loading
+                loading = loading,
+                sharedPreference = sharedPreference,
+                delete = delete
             )
         } else if (loading.value && !exception) {
             CircleInductor()
