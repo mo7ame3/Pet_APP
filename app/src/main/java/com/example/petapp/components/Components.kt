@@ -665,7 +665,11 @@ fun Setting(
         Text(text = "Account", style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.height(20.dp))
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    navController.navigate(route = AllScreens.MyPetsScreen.name)
+                },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {

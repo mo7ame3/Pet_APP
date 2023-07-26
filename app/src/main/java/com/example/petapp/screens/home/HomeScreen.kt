@@ -83,7 +83,8 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
                 homeList.emit(produce.data!!.data!!)
                 loading = false
             }
-        } else if (produce.data?.status == "fail" || produce.data?.status == "error" || produce.e != null) {
+        }
+        else if (produce.data?.status == "fail" || produce.data?.status == "error" || produce.e != null) {
             exception = true
             Toast.makeText(
                 context,
@@ -91,7 +92,8 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
                 Toast.LENGTH_SHORT
             ).show()
         }
-    } else if (selectBottomBar.value == "chat") {
+    }
+    else if (selectBottomBar.value == "chat") {
         loading = false
     } else if (selectBottomBar.value == "favorite") {
         loading = false

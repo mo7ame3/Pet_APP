@@ -16,6 +16,8 @@ import com.example.petapp.screens.home.HomeScreen
 import com.example.petapp.screens.home.HomeViewModel
 import com.example.petapp.screens.login.LoginScreen
 import com.example.petapp.screens.login.LoginViewModel
+import com.example.petapp.screens.pets.myPets.MyPetsScreen
+import com.example.petapp.screens.pets.myPets.MyPetsViewModel
 import com.example.petapp.screens.profile.ProfileScreen
 import com.example.petapp.screens.profile.ProfileViewModel
 import com.example.petapp.screens.register.RegisterScreen
@@ -76,5 +78,11 @@ fun NavGraph() {
                 profileViewModel = profileViewModel
             )
         }
+
+        composable(route = AllScreens.MyPetsScreen.name) {
+            val myPetsViewModel = hiltViewModel<MyPetsViewModel>()
+            MyPetsScreen(navController = navController, myPetsViewModel = myPetsViewModel)
+        }
+
     }
 }

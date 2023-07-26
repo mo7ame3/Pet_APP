@@ -12,6 +12,8 @@ object Constant {
     const val FORGET_PASSWORD = "user/forgetPassword"
     const val RESET_PASSWORD = "user/resetPassword"
     const val Home = "home"
-    const val GETUSER = "user"
+    const val GET_USER = "user"
+    const val MY_PETS = "pet/mine"
+    const val ALL_PETS = "pet/all"
 
 }

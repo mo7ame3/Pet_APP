@@ -39,13 +39,13 @@ interface PetApi {
     @GET(Constant.Home)
     suspend fun home(): Home
 
-    @GET(Constant.GETUSER + "/{userId}")
+    @GET(Constant.GET_USER + "/{userId}")
     suspend fun getProfile(
         @Path("userId") userId: String,
         @Header("Authorization") authorization: String
     ): Profile
 
-    @PATCH(Constant.GETUSER + "/{userId}")
+    @PATCH(Constant.GET_USER + "/{userId}")
     suspend fun updateProfile(
         @Path("userId") userId: String,
         @Header("Authorization") authorization: String,
@@ -53,9 +53,14 @@ interface PetApi {
     ): Profile
 
 
-    @DELETE(Constant.GETUSER + "/{userId}")
+    @DELETE(Constant.GET_USER + "/{userId}")
     suspend fun deleteUser(
         @Path("userId") userId: String,
         @Header("Authorization") authorization: String,
     ): Delete
+
+    @GET(Constant.MY_PETS)
+    suspend fun getMyPets(
+        @Header("Authorization") authorization: String,
+    ): Home
 }

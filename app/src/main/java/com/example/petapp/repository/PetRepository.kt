@@ -194,4 +194,18 @@ class PetRepository @Inject constructor(private val api: PetApi) {
         return delete
     }
 
+    suspend fun getMyPets(authorization: String): WrapperClass<Home, Boolean, Exception> {
+        try {
+            home.data = api.getMyPets(authorization = authorization)
+        } catch (e: HttpException) {
+            val error = e.response()?.errorBody()?.string()
+            home.data = Home(status = "fail", message = error.toString())
+        } catch (e: Exception) {
+            Log.d("TAG", "myPets: $e")
+            home.e = e
+        }
+        return home
+    }
+
+
 }
