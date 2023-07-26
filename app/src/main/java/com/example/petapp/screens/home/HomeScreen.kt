@@ -1,6 +1,7 @@
 package com.example.petapp.screens.home
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,8 @@ import com.example.petapp.components.TextInput
 import com.example.petapp.data.WrapperClass
 import com.example.petapp.model.home.Data
 import com.example.petapp.model.home.Home
+import com.example.petapp.navigation.AllScreens
+import com.example.petapp.screens.SharedViewModel
 import com.example.petapp.sharedpreference.SharedPreference
 import com.example.petapp.ui.theme.MainColor
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -53,7 +56,11 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
 @Composable
-fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
+fun HomeScreen(
+    navController: NavController,
+    homeViewModel: HomeViewModel,
+    sharedViewModel: SharedViewModel
+) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val sharedPreference = SharedPreference(context)
@@ -83,8 +90,7 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
                 homeList.emit(produce.data!!.data!!)
                 loading = false
             }
-        }
-        else if (produce.data?.status == "fail" || produce.data?.status == "error" || produce.e != null) {
+        } else if (produce.data?.status == "fail" || produce.data?.status == "error" || produce.e != null) {
             exception = true
             Toast.makeText(
                 context,
@@ -92,8 +98,7 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
                 Toast.LENGTH_SHORT
             ).show()
         }
-    }
-    else if (selectBottomBar.value == "chat") {
+    } else if (selectBottomBar.value == "chat") {
         loading = false
     } else if (selectBottomBar.value == "favorite") {
         loading = false
@@ -168,7 +173,12 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel) {
                     if (!loading && !exception) {
                         when (selectBottomBar.value) {
                             "home" -> {
-                                Home(item = homeList)
+                                Home(item = homeList, petAction = {
+                                    navController.navigate(route = AllScreens.AllPetsScreen.name)
+                                }, doctorAction = {}, foodAction = {}, onCardAction = { item ->
+                                    sharedViewModel.addPetDetails(item = item)
+                                    navController.navigate(route = AllScreens.DetailsScreen.name)
+                                }, accessoriesAction = {})
                             }
 
                             "chat" -> {

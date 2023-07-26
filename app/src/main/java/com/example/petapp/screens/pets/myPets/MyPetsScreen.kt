@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
@@ -32,21 +34,29 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.petapp.components.CircleInductor
-import com.example.petapp.components.Home
+import com.example.petapp.components.HomeCard
 import com.example.petapp.constant.Constant
 import com.example.petapp.data.WrapperClass
 import com.example.petapp.model.home.Data
 import com.example.petapp.model.home.Home
+import com.example.petapp.navigation.AllScreens
+import com.example.petapp.screens.SharedViewModel
+import com.example.petapp.screens.pets.PetsViewModel
 import com.example.petapp.ui.theme.MainColor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition",
+@SuppressLint(
+    "CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition",
     "UnusedMaterial3ScaffoldPaddingParameter"
 )
 @Composable
-fun MyPetsScreen(navController: NavController, myPetsViewModel: MyPetsViewModel) {
+fun MyPetsScreen(
+    navController: NavController,
+    petsViewModel: PetsViewModel,
+    sharedViewModel: SharedViewModel
+) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var loading by remember {
@@ -59,7 +69,7 @@ fun MyPetsScreen(navController: NavController, myPetsViewModel: MyPetsViewModel)
 
     val produce =
         produceState<WrapperClass<Home, Boolean, Exception>>(initialValue = WrapperClass()) {
-            value = myPetsViewModel.getMyPets(authorization = Constant.token)
+            value = petsViewModel.getMyPets(authorization = Constant.token)
         }.value
 
     if (produce.data?.status == "successful") {
@@ -80,14 +90,13 @@ fun MyPetsScreen(navController: NavController, myPetsViewModel: MyPetsViewModel)
         modifier = Modifier
             .fillMaxSize(),
         topBar = {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    IconButton(onClick = {navController.popBackStack()}) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = null)
-                    }
+            Row(modifier = Modifier.fillMaxWidth()) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(imageVector = Icons.Default.Close, contentDescription = null)
                 }
+            }
         },
-
-        ) {
+    ) {
         Surface(
             modifier = Modifier
                 .fillMaxSize()
@@ -96,11 +105,15 @@ fun MyPetsScreen(navController: NavController, myPetsViewModel: MyPetsViewModel)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .padding(top = 45.dp)
             ) {
                 if (!loading && !exception) {
                     if (myPetsList.value.isNotEmpty()) {
-                        Home(item = myPetsList)
+                        HomeCard(item = myPetsList) { item ->
+                            sharedViewModel.addPetDetails(item = item)
+                            navController.navigate(route = AllScreens.DetailsScreen.name)
+                        }
                     } else {
                         Column(
                             modifier = Modifier.fillMaxSize(),
@@ -126,7 +139,7 @@ fun MyPetsScreen(navController: NavController, myPetsViewModel: MyPetsViewModel)
                             loading = true
                             scope.launch {
                                 val myPestData: WrapperClass<Home, Boolean, Exception> =
-                                    myPetsViewModel.getMyPets(authorization = Constant.token)
+                                    petsViewModel.getMyPets(authorization = Constant.token)
                                 if (myPestData.data?.status == "success") {
                                     if (myPestData.data != null) {
                                         scope.launch {

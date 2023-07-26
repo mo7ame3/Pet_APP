@@ -8,6 +8,7 @@ import com.example.petapp.data.WrapperClass
 import com.example.petapp.model.authentication.Authentication
 import com.example.petapp.model.delete.Delete
 import com.example.petapp.model.home.Home
+import com.example.petapp.model.pets.GetAllPets
 import com.example.petapp.model.profile.Profile
 import com.example.petapp.network.PetApi
 import javax.inject.Inject
@@ -16,6 +17,7 @@ class PetRepository @Inject constructor(private val api: PetApi) {
 
     private val authentication: WrapperClass<Authentication, Boolean, Exception> = WrapperClass()
     private val home: WrapperClass<Home, Boolean, Exception> = WrapperClass()
+    private val getAllPets: WrapperClass<GetAllPets, Boolean, Exception> = WrapperClass()
     private val profile: WrapperClass<Profile, Boolean, Exception> = WrapperClass()
     private val delete: WrapperClass<Delete, Boolean, Exception> = WrapperClass()
 
@@ -183,11 +185,9 @@ class PetRepository @Inject constructor(private val api: PetApi) {
         } catch (e: HttpException) {
             val error = e.response()?.errorBody()?.string()
             delete.data = Delete(status = "fail", message = error.toString())
-        }
-        catch (e: NullPointerException) {
+        } catch (e: NullPointerException) {
             delete.data = Delete(status = "success")
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             Log.d("TAG", "deleteUser: $e")
             delete.e = e
         }
@@ -205,6 +205,19 @@ class PetRepository @Inject constructor(private val api: PetApi) {
             home.e = e
         }
         return home
+    }
+
+    suspend fun getAllPets(): WrapperClass<GetAllPets, Boolean, Exception> {
+        try {
+            getAllPets.data = api.getAllPets()
+        } catch (e: HttpException) {
+            val error = e.response()?.errorBody()?.string()
+            getAllPets.data = GetAllPets(status = "fail", message = error.toString())
+        } catch (e: Exception) {
+            Log.d("TAG", "getAllPets: $e")
+            getAllPets.e = e
+        }
+        return getAllPets
     }
 
 

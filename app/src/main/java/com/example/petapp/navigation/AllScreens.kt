@@ -9,4 +9,6 @@ enum class AllScreens {
     ResetPasswordScreen,
     ProfileScreen,
     MyPetsScreen,
+    AllPetsScreen,
+    DetailsScreen,
 }

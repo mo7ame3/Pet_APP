@@ -5,6 +5,7 @@ import com.example.petapp.constant.Constant
 import com.example.petapp.model.authentication.Authentication
 import com.example.petapp.model.delete.Delete
 import com.example.petapp.model.home.Home
+import com.example.petapp.model.pets.GetAllPets
 import com.example.petapp.model.profile.Profile
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -63,4 +64,7 @@ interface PetApi {
     suspend fun getMyPets(
         @Header("Authorization") authorization: String,
     ): Home
+
+    @GET(Constant.ALL_PETS)
+    suspend fun getAllPets(): GetAllPets
 }

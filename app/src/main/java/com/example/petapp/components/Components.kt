@@ -1,6 +1,7 @@
 package com.example.petapp.components
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -449,13 +450,15 @@ fun BottomBar(
 
 @Composable
 fun HomeRowCard(
-    firTitle: String, secTitle: String, firIcon: Int, secIcon: Int, firPhoto: Int, secPhoto: Int
+    firTitle: String, secTitle: String, firIcon: Int, secIcon: Int, firPhoto: Int, secPhoto: Int,
+    firAction: () -> Unit, secAction: () -> Unit
 ) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Card(
             modifier = Modifier
                 .weight(1f)
-                .height(100.dp),
+                .height(100.dp)
+                .clickable { firAction.invoke() },
             border = BorderStroke(1.dp, color = MainColor)
         ) {
             HomeCardColumn(title = firTitle, icon = firIcon, photo = firPhoto)
@@ -464,7 +467,8 @@ fun HomeRowCard(
         Card(
             modifier = Modifier
                 .weight(1f)
-                .height(100.dp),
+                .height(100.dp)
+                .clickable { secAction.invoke() },
             border = BorderStroke(1.dp, color = MainColor)
         ) {
             HomeCardColumn(title = secTitle, icon = secIcon, photo = secPhoto)
@@ -505,7 +509,7 @@ fun HomeCardColumn(title: String, icon: Int, photo: Int) {
 
 
 @Composable
-fun HomeCardOnline(item: Data) {
+fun HomeCardOnline(item: Data, onAction: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -515,6 +519,9 @@ fun HomeCardOnline(item: Data) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable {
+                    onAction.invoke()
+                }
                 .height(100.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -530,7 +537,7 @@ fun HomeCardOnline(item: Data) {
         Spacer(modifier = Modifier.height(5.dp))
         Text(text = item.name)
         Spacer(modifier = Modifier.height(5.dp))
-        Text(text = item.price.toString() + "EGP")
+        Text(text = item.price.toString() + " EGP")
         Row {
             Icon(imageVector = Icons.Default.LocationOn, contentDescription = null)
             Spacer(modifier = Modifier.width(5.dp))
@@ -541,7 +548,14 @@ fun HomeCardOnline(item: Data) {
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
-fun Home(item: MutableStateFlow<List<Data>>) {
+fun Home(
+    item: MutableStateFlow<List<Data>>,
+    petAction: () -> Unit,
+    doctorAction: () -> Unit,
+    foodAction: () -> Unit,
+    onCardAction: (item: Data) -> Unit,
+    accessoriesAction: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -555,7 +569,12 @@ fun Home(item: MutableStateFlow<List<Data>>) {
             firIcon = R.drawable.petsicon,
             secIcon = R.drawable.doctorsicon,
             firPhoto = R.drawable.petsphoto,
-            secPhoto = R.drawable.doctorsphoto
+            secPhoto = R.drawable.doctorsphoto,
+            firAction = {
+                petAction.invoke()
+            }, secAction = {
+                doctorAction.invoke()
+            }
         )
         Spacer(modifier = Modifier.height(5.dp))
         HomeRowCard(
@@ -564,7 +583,9 @@ fun Home(item: MutableStateFlow<List<Data>>) {
             firIcon = R.drawable.foodicon,
             secIcon = R.drawable.accessoriesicon,
             firPhoto = R.drawable.foodphoto,
-            secPhoto = R.drawable.accesoriesphoto
+            secPhoto = R.drawable.accesoriesphoto,
+            firAction = { foodAction.invoke() },
+            secAction = { accessoriesAction.invoke() }
         )
         Spacer(modifier = Modifier.height(5.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -577,46 +598,60 @@ fun Home(item: MutableStateFlow<List<Data>>) {
             )
         }
         Spacer(modifier = Modifier.height(5.dp))
-        for (i in 0 until item.value.size step 2) {
-            Row(modifier = Modifier.fillMaxWidth()) {
+        HomeCard(item = item) { item ->
+            onCardAction.invoke(item)
+        }
+        Spacer(modifier = Modifier.height(50.dp))
+
+    }
+}
+
+
+@SuppressLint("StateFlowValueCalledInComposition")
+@Composable
+fun HomeCard(item: MutableStateFlow<List<Data>>, onAction: (item: Data) -> Unit) {
+    for (i in 0 until item.value.size step 2) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(200.dp),
+                border = BorderStroke(1.dp, color = MainColor)
+            )
+            {
+                HomeCardOnline(item = item.value[i]) {
+                    onAction.invoke(item.value[i])
+                }
+            }
+            if (i + 2 < item.value.size) {
+                Spacer(modifier = Modifier.width(5.dp))
                 Card(
                     modifier = Modifier
                         .weight(1f)
                         .height(200.dp),
                     border = BorderStroke(1.dp, color = MainColor)
                 ) {
-                    HomeCardOnline(item = item.value[i])
+                    HomeCardOnline(item = item.value[i + 1]) {
+                        onAction.invoke(item.value[i + 1])
+                    }
                 }
-                if (i + 2 < item.value.size) {
-                    Spacer(modifier = Modifier.width(5.dp))
-                    Card(
+            } else {
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(200.dp),
+                    border = BorderStroke(0.dp, color = Color.White)
+                ) {
+                    Column(
                         modifier = Modifier
-                            .weight(1f)
-                            .height(200.dp),
-                        border = BorderStroke(1.dp, color = MainColor)
-                    ) {
-                        HomeCardOnline(item = item.value[i + 1])
-                    }
-                } else {
-                    Card(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(200.dp),
-                        border = BorderStroke(0.dp, color = Color.White)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(color = Color.White)
-                                .padding(5.dp),
-                        ) {}
-                    }
+                            .fillMaxSize()
+                            .background(color = Color.White)
+                            .padding(5.dp),
+                    ) {}
                 }
             }
-            Spacer(modifier = Modifier.height(5.dp))
         }
-        Spacer(modifier = Modifier.height(50.dp))
-
+        Spacer(modifier = Modifier.height(5.dp))
     }
 }
 
